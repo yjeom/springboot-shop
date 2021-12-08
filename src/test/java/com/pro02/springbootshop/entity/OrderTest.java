@@ -3,6 +3,7 @@ package com.pro02.springbootshop.entity;
 import com.pro02.springbootshop.constant.ItemSellStatus;
 import com.pro02.springbootshop.repository.ItemRepository;
 import com.pro02.springbootshop.repository.MemberRepository;
+import com.pro02.springbootshop.repository.OrderItemRepository;
 import com.pro02.springbootshop.repository.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,9 @@ class OrderTest {
 
     @PersistenceContext
     EntityManager em;
+
+    @Autowired
+    OrderItemRepository orderItemRepository;
 
     public Item createItem(){
         Item item=new Item();
@@ -100,6 +104,21 @@ class OrderTest {
         Order order=createOrder();
         order.getOrderItems().remove(0);
         em.flush();
+    }
+
+    @Test
+    @DisplayName(value = "지연 로딩 테스트")
+    public void lazyLoadingTest(){
+        Order order=createOrder();
+        Long orderItemId=order.getOrderItems().get(0).getId();
+        em.flush();
+        em.clear();
+        OrderItem orderItem=orderItemRepository.findById(orderItemId)
+                .orElseThrow(EntityExistsException::new);
+        System.out.println("Order class: "+orderItem.getOrder().getClass());
+        System.out.println("=================================");
+        orderItem.getOrder().getOrderDate();
+        System.out.println("=================================");
     }
 
 }
