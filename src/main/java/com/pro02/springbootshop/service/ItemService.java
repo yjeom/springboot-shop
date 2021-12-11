@@ -2,11 +2,14 @@ package com.pro02.springbootshop.service;
 
 import com.pro02.springbootshop.dto.ItemFormDto;
 import com.pro02.springbootshop.dto.ItemImgDto;
+import com.pro02.springbootshop.dto.ItemSearchDto;
 import com.pro02.springbootshop.entity.Item;
 import com.pro02.springbootshop.entity.ItemImg;
 import com.pro02.springbootshop.repository.ItemImgRepository;
 import com.pro02.springbootshop.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,5 +67,10 @@ public class ItemService {
             itemImgService.updateItemImg(itemImgIds.get(i),itemImgFileList.get(i));
         }
         return item.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable){
+        return itemRepository.getAdminItemPage(itemSearchDto,pageable);
     }
 }
