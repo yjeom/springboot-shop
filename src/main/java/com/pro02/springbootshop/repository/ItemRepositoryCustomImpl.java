@@ -2,8 +2,11 @@ package com.pro02.springbootshop.repository;
 
 import com.pro02.springbootshop.constant.ItemSellStatus;
 import com.pro02.springbootshop.dto.ItemSearchDto;
+import com.pro02.springbootshop.dto.MainItemDto;
+import com.pro02.springbootshop.dto.QMainItemDto;
 import com.pro02.springbootshop.entity.Item;
 import com.pro02.springbootshop.entity.QItem;
+import com.pro02.springbootshop.entity.QItemImg;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -46,7 +49,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
         if(StringUtils.equals("itemName",searchBy)){
             return QItem.item.itemName.like("%"+searchQuery+"%");
         }else if(StringUtils.equals("createBy",searchBy)){
-            return QItem.item.createBy.like("%"+searchQuery+"%");
+            return QItem.item.createdBy.like("%"+searchQuery+"%");
         }
         return null;
     }
@@ -62,6 +65,33 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        return new PageImpl<>(content,pageable,content.size());
+    }
+
+    private BooleanExpression itemNameLike(String searchQuery){
+        return StringUtils.isEmpty(searchQuery)?null:QItem.item.itemName.like("%"+searchQuery+"%");
+    }
+    @Override
+    public Page<MainItemDto> getMainItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
+        QItem item=QItem.item;
+        QItemImg itemImg=QItemImg.itemImg;
+
+        List<MainItemDto> content=queryFactory.select(
+                new QMainItemDto(
+                        item.id,
+                        item.itemName,
+                        item.itemDetail,
+                        itemImg.imgUrl,
+                        item.price)
+
+                ).from(itemImg)
+                .join(itemImg.item,item)
+                .where(itemImg.repImgYn.eq("Y"))
+                .where(itemNameLike(itemSearchDto.getSearchQuery()))
+                .orderBy(item.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
         return new PageImpl<>(content,pageable,content.size());
     }
 }

@@ -3,6 +3,7 @@ package com.pro02.springbootshop.service;
 import com.pro02.springbootshop.dto.ItemFormDto;
 import com.pro02.springbootshop.dto.ItemImgDto;
 import com.pro02.springbootshop.dto.ItemSearchDto;
+import com.pro02.springbootshop.dto.MainItemDto;
 import com.pro02.springbootshop.entity.Item;
 import com.pro02.springbootshop.entity.ItemImg;
 import com.pro02.springbootshop.repository.ItemImgRepository;
@@ -72,5 +73,10 @@ public class ItemService {
     @Transactional(readOnly = true)
     public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable){
         return itemRepository.getAdminItemPage(itemSearchDto,pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<MainItemDto> getMainItemPage(ItemSearchDto itemSearchDto,Pageable pageable){
+        return itemRepository.getMainItemPage(itemSearchDto,pageable);
     }
 }
