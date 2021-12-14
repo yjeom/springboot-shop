@@ -1,6 +1,7 @@
 package com.pro02.springbootshop.service;
 
 import com.pro02.springbootshop.constant.ItemSellStatus;
+import com.pro02.springbootshop.constant.OrderStatus;
 import com.pro02.springbootshop.dto.OrderDto;
 import com.pro02.springbootshop.entity.Item;
 import com.pro02.springbootshop.entity.Member;
@@ -73,5 +74,24 @@ class OrderServiceTest {
         int totalPrice=orderDto.getCount()*item.getPrice();
         assertEquals(totalPrice,order.getTotalPrice());
 
+    }
+
+    @Test
+    @DisplayName(value = "주문 취소 테스트")
+    public void cancelOrderTest(){
+        Item item=saveItem();
+        Member member=saveMember();
+
+        OrderDto orderDto=new OrderDto();
+        orderDto.setCount(10);
+        orderDto.setItemId(item.getId());
+        Long orderId= orderService.order(orderDto,member.getEmail());
+
+        Order order=orderRepository.findById(orderId)
+                .orElseThrow(EntityExistsException::new);
+        orderService.cancelOrder(orderId);
+
+        assertEquals(OrderStatus.CANCEL,order.getOrderStatus());
+        assertEquals(100,item.getStockNumber());
     }
 }
