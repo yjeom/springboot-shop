@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Table(name = "cart_item")
 @Getter
 @Setter
-public class CartItem {
+public class CartItem extends BaseEntity{
 
     @Id
     @Column(name = "cart_item_id")
@@ -25,4 +25,16 @@ public class CartItem {
     private Item item;
 
     private int count;
+
+    public static CartItem createCartItem(Cart cart,Item item, int count){
+        CartItem cartItem=new CartItem();
+        cartItem.setCart(cart);
+        cartItem.setItem(item);
+        cartItem.setCount(count);
+        return cartItem;
+    }
+
+    public void addCount(int count){
+        this.count +=count;
+    }
 }
