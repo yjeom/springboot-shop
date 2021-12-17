@@ -2,6 +2,8 @@ package com.pro02.springbootshop.service;
 
 import com.pro02.springbootshop.dto.CartDetailDto;
 import com.pro02.springbootshop.dto.CartItemDto;
+import com.pro02.springbootshop.dto.CartOrderDto;
+import com.pro02.springbootshop.dto.OrderDto;
 import com.pro02.springbootshop.entity.Cart;
 import com.pro02.springbootshop.entity.CartItem;
 import com.pro02.springbootshop.entity.Item;
@@ -28,6 +30,7 @@ public class CartService {
     private final MemberRepository memberRepository;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final OrderService orderService;
 
     public Long addCart(CartItemDto cartItemDto,String email){
         Item item=itemRepository.findById(cartItemDto.getItemId())
@@ -91,5 +94,25 @@ public class CartService {
                 .orElseThrow(EntityExistsException::new);
 
         cartItemRepository.delete(cartItem);
+    }
+
+    public Long orderCartItem(List<CartOrderDto>cartOrderDtoList,String email){
+        List<OrderDto> orderDtoList=new ArrayList<>();
+        for(CartOrderDto cartOrderDto:cartOrderDtoList){
+            CartItem cartItem=cartItemRepository.findById(cartOrderDto.getCartItemId())
+                    .orElseThrow(EntityExistsException::new);
+            OrderDto orderDto=new OrderDto();
+            orderDto.setItemId(cartItem.getItem().getId());
+            orderDto.setCount(cartItem.getCount());
+            orderDtoList.add(orderDto);
+        }
+        Long orderId= orderService.orders(orderDtoList,email);
+
+        for(CartOrderDto cartOrderDto:cartOrderDtoList){
+            CartItem cartItem=cartItemRepository.findById(cartOrderDto.getCartItemId())
+                    .orElseThrow(EntityExistsException::new);
+            cartItemRepository.delete(cartItem);
+        }
+        return orderId;
     }
 }
